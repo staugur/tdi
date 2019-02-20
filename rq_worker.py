@@ -11,7 +11,7 @@
 
 if __name__ == '__main__':
     from redis import from_url
-    from config import REDIS
+    from config import REDIS, PROCNAME
     from rq import Worker, Queue, Connection
     listen = ['high', 'default', 'low']
     try:
@@ -19,7 +19,7 @@ if __name__ == '__main__':
     except ImportError:
         pass
     else:
-        setproctitle.setproctitle('CrawlHuabanTdi.rq')
+        setproctitle.setproctitle('%s.rq' % PROCNAME)
     with Connection(from_url(REDIS)):
         worker = Worker(map(Queue, listen))
         worker.work()

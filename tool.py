@@ -15,7 +15,7 @@ import requests
 import logging
 import logging.handlers
 from redis import from_url
-from config import LOGLEVEL, REDIS
+from config import LOGLEVEL, REDIS, PROCNAME
 from version import __version__
 
 rc = from_url(REDIS)
@@ -113,7 +113,7 @@ def try_request(url, params=None, data=None, timeout=5, num_retries=1, method='p
     @timeout int: 超时时间，单位秒
     @num_retries int: 超时重试次数
     """
-    headers = {"User-Agent": "Mozilla/5.0 (X11; CentOS; Linux i686; rv:7.0.1406) Gecko/20100101 CrawlHuabanTdi/{}".format(__version__)}
+    headers = {"User-Agent": "Mozilla/5.0 (X11; CentOS; Linux i686; rv:7.0.1406) Gecko/20100101 %s/%s" % (PROCNAME, __version__)}
     method_func = requests.get if method == 'get' else requests.post
     try:
         resp = method_func(url, params=params, headers=headers, timeout=timeout, data=data).json()
@@ -131,7 +131,7 @@ class Logger:
     def __init__(self, logName, backupCount=10):
         self.logName = logName
         self.log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-        self.logFile = os.path.join(self.log_dir, '{0}.log'.format(self.logName))
+        self.logFile = os.path.join(self.log_dir, '%s.log' % self.logName)
         self._levels = {
             "DEBUG": logging.DEBUG,
             "INFO": logging.INFO,

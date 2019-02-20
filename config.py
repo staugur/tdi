@@ -14,6 +14,8 @@ from os import getenv
 # Configuration Information:
 # The getenv function first reads the configuration from the environment variable. When no variable is found, the default value is used.
 # getenv("environment variable", "default value")
+# Progranm Name
+PROCNAME = "CrawlHuabanTdi"
 # Program listening host
 HOST = getenv("crawlhuabantdi_host", "0.0.0.0")
 # Program listening port

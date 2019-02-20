@@ -15,10 +15,9 @@ import time
 import shutil
 import requests
 import json
-import psutil
 from redis import from_url
 from multiprocessing.dummy import Pool as ThreadPool
-from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc
+from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -36,7 +35,7 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     @param MAX_BOARD_NUMBER: int: 允许下载的画板数量
     """
     makedir(downloadDir)
-    if psutil.disk_usage(downloadDir).percent > 80:
+    if diskRate(downloadDir) > 80:
         raise SystemError("Disk usage is too high")
     if len(board_pins) > MAX_BOARD_NUMBER:
         board_pins = board_pins[:MAX_BOARD_NUMBER]
@@ -50,7 +49,7 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
         pass
     # 初始化请求类
     req = requests.Session()
-    req.headers.update({'Referer': 'https://huaban.com/boards/{}'.format(board_id) if site == 1 else 'https://www.duitang.com/album/?id={}'.format(board_id), 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'})
+    req.headers.update({'Referer': 'https://huaban.com/boards/%s' % board_id if site == 1 else 'https://www.duitang.com/album/?id=%s' % board_id, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'})
 
     def _download_img(pin, retry=True):
         """ 下载单个图片
@@ -66,6 +65,7 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
                     with open(imgname, 'wb') as fp:
                         fp.write(res.content)
                 except Exception, e:
+                    logger.debug(e)
                     if retry is True:
                         _download_img(pin, False)
     # 创建下载目录并切换
@@ -78,14 +78,14 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     data = pool.map(_download_img, board_pins)
     pool.close()
     pool.join()
-    logger.info("DownloadBoard over, data len: {}, start make_archive".format(len(data)))
+    logger.info("DownloadBoard over, data len: %s, start make_archive" % len(data))
     # 压缩目录
     zipfilepath = make_zipfile(uifn, board_id, [".zip", ".lock"])
-    logger.info("DownloadBoard make_archive over, path is {}".format(zipfilepath))
+    logger.info("DownloadBoard make_archive over, path is %s" % zipfilepath)
     # 检测压缩文件大小
     size = formatSize(os.path.getsize(uifn))
     # 删除临时画板目录
-    shutil.rmtree(board_id)
+    # shutil.rmtree(board_id)
     logger.info("DownloadBoard move over, delete lock and %s" % board_id)
     # 计算总共下载用时
     dtime = "%.2f" % (time.time() - stime)

@@ -10,6 +10,7 @@
 """
 
 import os
+import json
 import hashlib
 import rq_dashboard
 from rq import Queue
@@ -81,7 +82,7 @@ def download():
         data = request.form
         if "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
             asyncQueue = Queue(connection=rc)
-            asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifnKey"], data["site"], data["board_id"], data["uifn"], data["board_pins"], data["etime"], data["MAX_BOARD_NUMBER"], data["CALLBACK_URL"]), timeout=3600)
+            asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifnKey"], int(data["site"]), data["board_id"], data["uifn"], json.loads(data["board_pins"]), int(data["etime"]), data["MAX_BOARD_NUMBER"], data["CALLBACK_URL"]), timeout=3600)
             res.update(code=0)
         else:
             res.update(msg="Invalid param")
