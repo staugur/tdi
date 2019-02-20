@@ -23,6 +23,11 @@ start)
     fi
     ;;
 
+run)
+    # 前台运行
+    python -O rq_worker.py
+    ;;
+
 autostart)
     #可用于监控进程，异常时自动启动服务
     if [ -f $pidfile1 ]; then

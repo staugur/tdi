@@ -17,7 +17,7 @@ from os import getenv
 # Progranm Name
 PROCNAME = "CrawlHuabanTdi"
 # Program listening host
-HOST = getenv("crawlhuabantdi_host", "0.0.0.0")
+HOST = getenv("crawlhuabantdi_host", "127.0.0.1")
 # Program listening port
 PORT = int(getenv("crawlhuabantdi_port", 13145))
 # Logging level: DEBUG, INFO, WARNING, ERROR, CRITICAL
