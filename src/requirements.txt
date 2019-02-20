@@ -5,3 +5,4 @@ rq-dashboard==0.3.10
 requests
 gevent
 gunicorn
+setproctitle
