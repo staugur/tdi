@@ -27,6 +27,7 @@ __date__ = '2019-02-16'
 # Download pictures directory
 DOWNLOADPATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
 makedir(DOWNLOADPATH)
+asyncQueue = Queue(connection=rc)
 
 
 def checkSignature(signature, timestamp, nonce):
@@ -71,7 +72,7 @@ def after_request(response):
 @app.route("/ping")
 @signature_required
 def ping():
-    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp())
+    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp(), rqcount=asyncQueue.count)
     return jsonify(res)
 
 
@@ -82,7 +83,6 @@ def download():
         res = dict(code=1, msg=None)
         data = request.form
         if "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
-            asyncQueue = Queue(connection=rc)
             asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifnKey"], int(data["site"]), data["board_id"], data["uifn"], json.loads(data["board_pins"]), int(data["etime"]), data["MAX_BOARD_NUMBER"], data["CALLBACK_URL"]), timeout=3600)
             res.update(code=0)
         else:
