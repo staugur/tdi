@@ -16,7 +16,7 @@ from rq import Queue
 from functools import wraps
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
-from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc
+from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp
 from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH
 from version import __version__
 
@@ -83,8 +83,18 @@ def download():
         res = dict(code=1, msg=None)
         data = request.form
         if "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
-            asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifnKey"], int(data["site"]), data["board_id"], data["uifn"], json.loads(data["board_pins"]), int(data["etime"]), data["MAX_BOARD_NUMBER"], data["CALLBACK_URL"]), timeout=3600)
-            res.update(code=0)
+            etime = int(data["etime"])
+            # 存入缓存数据
+            pipe = rc.pipeline()
+            pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=data["CALLBACK_URL"], board_pins=data["board_pins"], MAX_BOARD_NUMBER=data["MAX_BOARD_NUMBER"], board_id=data["board_id"], site=data["site"], uifnKey=data["uifnKey"]))
+            pipe.expireat(uifn, timestamp_after_timestamp(etime, hours=1))
+            try:
+                pipe.execute()
+            except:
+                res.update(msg="redis is error")
+            else:
+                res.update(code=0)
+                asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifn"]), timeout=3600)
         else:
             res.update(msg="Invalid param")
         return jsonify(res)

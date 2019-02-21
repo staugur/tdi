@@ -24,7 +24,7 @@ sys.setdefaultencoding('utf-8')
 logger = Logger("sys").getLogger
 
 
-def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime, MAX_BOARD_NUMBER=20000, CALLBACK_URL="https://open.saintic.com/CrawlHuaban/Callback"):
+def DownloadBoard(downloadDir, uifn):
     """
     @param downloadDir str: 画板上层目录，CrawlHuaban插件所在目录，图片直接保存到此目录的`board_id`下
     @param uifnKey: str: 标识索引
@@ -37,16 +37,16 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     makedir(downloadDir)
     if diskRate(downloadDir) > 80:
         raise SystemError("Disk usage is too high")
+    # 从redis读取数据
+    data = rc.hgetall(uifn)
+    board_pins = json.loads(data["board_pins"])
+    CALLBACK_URL = data["CALLBACK_URL"]
+    MAX_BOARD_NUMBER = int(data["MAX_BOARD_NUMBER"])
+    board_id = data["board_id"]
+    site = int(data["site"])
+    uifnKey = data["uifnKey"]
     if len(board_pins) > MAX_BOARD_NUMBER:
         board_pins = board_pins[:MAX_BOARD_NUMBER]
-    # 存入缓存数据
-    pipe = rc.pipeline()
-    pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=CALLBACK_URL))
-    pipe.expireat(uifn, timestamp_after_timestamp(etime, hours=1))
-    try:
-        pipe.execute()
-    except:
-        pass
     # 初始化请求类
     req = requests.Session()
     req.headers.update({'Referer': 'https://huaban.com/boards/%s' % board_id if site == 1 else 'https://www.duitang.com/album/?id=%s' % board_id, 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36'})
