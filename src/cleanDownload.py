@@ -17,7 +17,7 @@ from tool import rc, get_current_timestamp, timestamp_after_timestamp, try_reque
 
 
 def execute_cleanDownload(hours=12):
-    downloadDir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "downloads")
+    downloadDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "downloads")
     for uifn in os.listdir(downloadDir):
         filepath = os.path.join(downloadDir, uifn)
         if os.path.isfile(filepath) and os.path.splitext(uifn)[-1] == ".zip":
@@ -40,6 +40,7 @@ def execute_cleanDownload(hours=12):
                             data = rc.hgetall(uifn)
                             if data and isinstance(data, dict):
                                 resp = try_request(data["CALLBACK_URL"], timeout=5, params=dict(Action="SECOND_STATUS"), data=dict(uifn=uifn))
+                                print("Update expired status for %s, resp is %s" %(uifn, resp))
                                 if resp.get("code") == 0:
                                     rc.delete(uifn)
                         except Exception, e:

@@ -42,7 +42,7 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     # 存入缓存数据
     pipe = rc.pipeline()
     pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=CALLBACK_URL))
-    pipe.expireat(uifn, timestamp_after_timestamp(int(etime), hours=1))
+    pipe.expireat(uifn, timestamp_after_timestamp(etime, hours=1))
     try:
         pipe.execute()
     except:
@@ -85,7 +85,7 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     # 检测压缩文件大小
     size = formatSize(os.path.getsize(uifn))
     # 删除临时画板目录
-    # shutil.rmtree(board_id)
+    shutil.rmtree(board_id)
     logger.info("DownloadBoard move over, delete lock and %s" % board_id)
     # 计算总共下载用时
     dtime = "%.2f" % (time.time() - stime)
