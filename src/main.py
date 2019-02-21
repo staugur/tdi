@@ -83,6 +83,7 @@ def download():
         res = dict(code=1, msg=None)
         data = request.form
         if "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
+            uifn = data["uifn"]
             etime = int(data["etime"])
             # 存入缓存数据
             pipe = rc.pipeline()
