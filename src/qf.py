@@ -17,7 +17,7 @@ import requests
 import json
 from redis import from_url
 from multiprocessing.dummy import Pool as ThreadPool
-from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate
+from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -41,8 +41,8 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
         board_pins = board_pins[:MAX_BOARD_NUMBER]
     # 存入缓存数据
     pipe = rc.pipeline()
-    pipe.set(uifn, etime)
-    pipe.expireat(uifn, etime)
+    pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=CALLBACK_URL))
+    pipe.expireat(uifn, timestamp_after_timestamp(int(etime), hours=1))
     try:
         pipe.execute()
     except:
@@ -91,11 +91,11 @@ def DownloadBoard(downloadDir, uifnKey, site, board_id, uifn, board_pins, etime,
     dtime = "%.2f" % (time.time() - stime)
     # 回调
     try:
-        resp = try_request(CALLBACK_URL, timeout=5, data=dict(uifn=uifn, uifnKey=uifnKey, size=size, dtime=dtime))
+        resp = try_request(CALLBACK_URL, timeout=5, params=dict(Action="FIRST_STATUS"), data=dict(uifn=uifn, uifnKey=uifnKey, size=size, dtime=dtime))
     except Exception as e:
         logger.error(e, exc_info=True)
     else:
         if resp and isinstance(resp, dict) and resp.get("code") != 0:
-            try_request(CALLBACK_URL, timeout=5, data=dict(uifn=uifn, uifnKey=uifnKey, size=size, dtime=dtime))
+            try_request(CALLBACK_URL, timeout=5, params=dict(Action="FIRST_STATUS"), data=dict(uifn=uifn, uifnKey=uifnKey, size=size, dtime=dtime))
     finally:
         logger.info("DownloadBoard callback is over: %s" % resp)

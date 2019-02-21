@@ -12,13 +12,12 @@
 import os
 import json
 import hashlib
-import rq_dashboard
 from rq import Queue
 from functools import wraps
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
 from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc
-from config import HOST, PORT, REDIS, TOKEN, STATUS
+from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH
 from version import __version__
 
 __author__ = 'staugur'
@@ -57,7 +56,9 @@ app.config.update(
     REDIS_URL=REDIS,
     RQ_POLL_INTERVAL=2500,
 )
-app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqdashboard")
+if NORQDASH != "yes":
+    import rq_dashboard
+    app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqdashboard")
 
 
 @app.after_request

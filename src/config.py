@@ -28,3 +28,5 @@ REDIS = getenv("crawlhuabantdi_redis_url", "")
 TOKEN = getenv("crawlhuabantdi_token", "")
 # Set this service status: ready or tardy
 STATUS = getenv("crawlhuabantdi_status", "ready")
+# Disable rq_dashboard
+NORQDASH = getenv("crawlhuabantdi_norqdash", "no")

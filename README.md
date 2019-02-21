@@ -22,6 +22,7 @@
 ## 更多文档：
 
 [点击查看文档](http://docs.saintic.com/946799 "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
+若上述地址异常，备用地址是：[https://www.kancloud.cn/staugur/staugur/740838](https://www.kancloud.cn/staugur/staugur/740838)
 
 ## Nginx参考：
 ```
@@ -31,21 +32,10 @@ server {
     charset utf-8;
     #防止在IE9、Chrome和Safari中的MIME类型混淆攻击
     add_header X-Content-Type-Options nosniff;
-    #处理静态资源:
-    location ~ ^\/static\/.*$ {
-        #tdi是程序目录
-        root /tdi/src/;
-        access_log off;
-    }
     location /downloads {
         #下载程序目录
         alias /tdi/src/downloads/;
         default_type application/octet-stream;
-        #目录索引
-        #autoindex on;
-        #autoindex_format html;
-        #autoindex_exact_size on;
-        #autoindex_localtime on;
         proxy_max_temp_file_size 0;
         if ($request_filename ~* ^.*?\.(zip|tgz)$){
             add_header Content-Disposition 'attachment;';

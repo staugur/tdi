@@ -11,6 +11,7 @@
 
 import os
 import time
+import datetime
 import requests
 import logging
 import logging.handlers
@@ -24,6 +25,18 @@ rc = from_url(REDIS)
 def get_current_timestamp():
     """ 获取本地当前时间戳(10位): Unix timestamp：是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒 """
     return int(time.time())
+
+
+def timestamp_after_timestamp(timestamp=None, seconds=0, minutes=0, hours=0, days=0):
+    """ 给定时间戳(10位),计算该时间戳之后多少秒、分钟、小时、天的时间戳(本地时间) """
+    # 1. 默认时间戳为当前时间
+    timestamp = get_current_timestamp() if timestamp is None else timestamp
+    # 2. 先转换为datetime
+    d1 = datetime.datetime.fromtimestamp(timestamp)
+    # 3. 根据相关时间得到datetime对象并相加给定时间戳的时间
+    d2 = d1 + datetime.timedelta(seconds=int(seconds), minutes=int(minutes), hours=int(hours), days=int(days))
+    # 4. 返回某时间后的时间戳
+    return int(time.mktime(d2.timetuple()))
 
 
 def memRate():
