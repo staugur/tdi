@@ -49,8 +49,7 @@ def memRate():
         name = line.split(':')[0]
         var = line.split(':')[1].split()[0]
         mem[name] = long(var) * 1024.0
-    mem['MemUsed'] = mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']
-    return 100 * int(mem["MemTotal"]-mem['MemUsed']) / int(mem["MemTotal"])
+    return 100 * int(mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']) / int(mem["MemTotal"])
 
 
 def loadStat():

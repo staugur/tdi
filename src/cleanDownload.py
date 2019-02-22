@@ -12,8 +12,9 @@
 
 import os
 import requests
-import traceback
-from tool import rc, get_current_timestamp, timestamp_after_timestamp, try_request
+from tool import rc, get_current_timestamp, timestamp_after_timestamp, try_request, Logger
+
+logger = Logger("cli").getLogger
 
 
 def execute_cleanDownload(hours=12):
@@ -40,13 +41,13 @@ def execute_cleanDownload(hours=12):
                             data = rc.hgetall(uifn)
                             if data and isinstance(data, dict):
                                 resp = try_request(data["CALLBACK_URL"], timeout=5, params=dict(Action="SECOND_STATUS"), data=dict(uifn=uifn))
-                                print("Update expired status for %s, resp is %s" %(uifn, resp))
+                                logger.info("Update expired status for %s, resp is %s" % (uifn, resp))
                                 if resp.get("code") == 0:
                                     rc.delete(uifn)
                         except Exception, e:
-                            traceback.print_exc()
+                            logger.error(e, exc_info=True)
                         else:
-                            print("Remove zip file: {}".format(filepath))
+                            logger.info("Remove zip file: {}".format(filepath))
 
 
 if __name__ == "__main__":
