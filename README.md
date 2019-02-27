@@ -18,7 +18,10 @@
 2. 下载： `git clone https://github.com/staugur/tdi && cd tdi/src`
 3. 依赖： `pip install -r requirements.txt`
 4. 配置： 即config.py，可以从环境变量中读取配置信息。
-4. 启动： sh online_rq.sh start && sh online_gunicorn.sh start
+5. 启动： sh online_rq.sh start && sh online_gunicorn.sh start
+
+> 部署图
+> ![](misc/deploy.gif)
 
 ## 更多文档：
 
