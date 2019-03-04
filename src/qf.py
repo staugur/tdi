@@ -49,7 +49,7 @@ def DownloadBoard(downloadDir, uifn):
     ALLOWDOWN = True
     def writeREADME():
         """更新README提示信息"""
-        if README
+        if README:
             with open(os.path.join(downloadDir, board_id, 'README.txt'), "a+") as fp:
                 fp.write("\n".join(list(README)))
     # 创建下载目录并切换
