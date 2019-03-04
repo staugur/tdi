@@ -1,11 +1,11 @@
 # Tdi
 花瓣网、堆糖网下载油猴脚本的远程下载服务
 
-此程序相当于`https://open.sainitc.com/CrawlHuaban`(中心端)的成员，用户选择远端下载后会由中心端选择一个成员提供给用户，减少中心端压力。
+此程序相当于`CrawlHuaban`(中心端)的成员，用户选择远端下载后会由中心端选择一个成员提供给用户，减少中心端压力。
 
 ## 流程：
 
-1. 成员端启动程序，到中心端页面`https://open.sainitc.com/CrawlHuaban/Register`注册成员端URL。
+1. 成员端启动程序，到中心端页面`https://open.saintic.com/CrawlHuaban/Register`注册成员端URL。
 2. 中心端校验成员端规则<ping>，没问题注册到mysql(缓存到redis)。
 3. 中心端定时检测成员端<ping>，查询其可用性、磁盘、负载、内存，并更新状态。
 4. 用户请求时，中心端根据成员端状态和资源计算是否可用，然后从可用列表中随机分配。
