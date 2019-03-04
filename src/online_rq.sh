@@ -7,6 +7,11 @@
 dir=$(cd $(dirname $0); pwd)
 cd $dir
 
+#准备环境
+if [ -r online_preboot.sh ]; then
+    . online_preboot.sh
+fi
+
 pidfile1=${dir}/logs/rq.pid
 logfile1=${dir}/logs/rq.log
 [ -d ${dir}/logs ] || mkdir -p ${dir}/logs
