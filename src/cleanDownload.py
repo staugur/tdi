@@ -40,11 +40,11 @@ def execute_cleanDownload(hours=12):
                             os.remove(filepath)
                             data = rc.hgetall(uifn)
                             if data and isinstance(data, dict):
-                                resp = try_request(data["CALLBACK_URL"], timeout=5, params=dict(Action="SECOND_STATUS"), data=dict(uifn=uifn))
+                                resp = try_request(data[b"CALLBACK_URL"], timeout=5, params=dict(Action="SECOND_STATUS"), data=dict(uifn=uifn))
                                 logger.info("Update expired status for %s, resp is %s" % (uifn, resp))
                                 if resp.get("code") == 0:
                                     rc.delete(uifn)
-                        except Exception, e:
+                        except Exception as e:
                             logger.error(e, exc_info=True)
                         else:
                             logger.info("Remove zip file: {}".format(filepath))

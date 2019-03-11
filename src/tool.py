@@ -10,6 +10,7 @@
 """
 
 import os
+import sys
 import time
 import datetime
 import requests
@@ -18,6 +19,14 @@ import logging.handlers
 from redis import from_url
 from config import LOGLEVEL, REDIS, PROCNAME
 from version import __version__
+PY2 = sys.version_info[0] == 2
+if PY2:
+    string_types = (str, unicode)
+    makeLong = long
+else:
+    string_types = (str,)
+    makeLong = int
+
 
 rc = from_url(REDIS)
 
@@ -48,8 +57,8 @@ def memRate():
             continue
         name = line.split(':')[0]
         var = line.split(':')[1].split()[0]
-        mem[name] = long(var) * 1024.0
-    return 100 * int(mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']) / int(mem["MemTotal"])
+        mem[name] = makeLong(var) * 1024.0
+    return round(100 * int(mem['MemTotal'] - mem['MemFree'] - mem['Buffers'] - mem['Cached']) / int(mem["MemTotal"]), 2)
 
 
 def loadStat():
@@ -64,12 +73,11 @@ def loadStat():
 
 def diskRate(path=None):
     disk = os.statvfs(path or os.getcwd())
-    percent = (disk.f_blocks - disk.f_bfree) * 100 / (disk.f_blocks - disk.f_bfree + disk.f_bavail) + 1
+    percent = round((disk.f_blocks - disk.f_bfree) * 100 / (disk.f_blocks - disk.f_bfree + disk.f_bavail) + 1, 2)
     return percent
 
 
 def makedir(d):
-    d = str(d)
     if not os.path.exists(d):
         os.makedirs(d)
     if os.path.exists(d):
@@ -94,7 +102,7 @@ def make_zipfile(zip_filename, zip_path, exclude=[]):
                 if os.path.isdir(filename):
                     continue
                 if not os.path.splitext(filename)[-1] in exclude:
-                    zf.write(os.path.join(zip_path, filename), filename)
+                    zf.write(os.path.join(zip_path, filename), filename.decode())
         return zip_filename if os.path.isabs(zip_filename) else os.path.join(os.getcwd(), zip_filename)
     else:
         raise TypeError
@@ -162,7 +170,7 @@ class Logger:
         formatter = logging.Formatter('[ %(levelname)s ] %(asctime)s %(filename)s:%(lineno)d %(message)s', datefmt=self._logfmt)
         handler.setFormatter(formatter)
         self._logger.addHandler(handler)
-        self._logger.setLevel(self._levels.get(LOGLEVEL))
+        self._logger.setLevel(self._levels.get(LOGLEVEL, logging.INFO))
 
     @property
     def getLogger(self):
