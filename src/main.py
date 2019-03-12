@@ -81,7 +81,7 @@ def ping():
 def download():
     if request.method == "POST":
         res = dict(code=1, msg=None)
-        data = request.form
+        data = request.form.to_dict()
         if "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
             uifn = data["uifn"]
             etime = int(data["etime"])
@@ -95,7 +95,7 @@ def download():
                 res.update(msg="redis is error")
             else:
                 res.update(code=0)
-                asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifn"]), timeout=3600)
+                asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifn"]), timeout=int(data.get("TIMEOUT") or 7200))
         else:
             res.update(msg="Invalid param")
         return jsonify(res)

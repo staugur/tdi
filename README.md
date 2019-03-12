@@ -6,16 +6,16 @@
 ## 流程：
 
 1. 成员端启动程序，到中心端页面`https://open.saintic.com/CrawlHuaban/Register`注册成员端URL。
-2. 中心端校验成员端规则<ping>，没问题注册到mysql(缓存到redis)。
+2. 中心端校验成员端规则<ping>，没问题则接入系统中。
 3. 中心端定时检测成员端<ping>，查询其可用性、磁盘、负载、内存，并更新状态。
-4. 用户请求时，中心端根据成员端状态和资源计算是否可用，然后从可用列表中随机分配。
+4. 用户请求时，若有密钥则计算是否有可用专属Tdi，若无，则中心端根据成员端状态和资源计算是否可用，然后从可用列表中随机分配。
 5. 程序收到下载请求后，放入异步任务队列，下载完成后回调给中心端，实现提醒、记录等。
-6. 定时执行`cleanDownload.py`脚本，清理已过期的压缩文件。
+6. 成员端需定时执行`cleanDownload.py`脚本，清理已过期的压缩文件。
 
 ## 部署：
 
-1. 要求： Python2.7和Redis
-2. 下载： `git clone https://github.com/staugur/tdi && cd tdi/src`
+1. 要求： Python2.7、Python3.5+和Redis
+2. 下载： `git clone https://github.com/saintic/tdi && cd tdi/src`
 3. 依赖： `pip install -r requirements.txt`
 4. 配置： 即config.py，可以从环境变量中读取配置信息。
 5. 启动： sh online_rq.sh start && sh online_gunicorn.sh start
@@ -26,6 +26,7 @@
 ## 更多文档：
 
 [点击查看文档](http://docs.saintic.com/946799 "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
+
 若上述地址异常，备用地址是：[https://www.kancloud.cn/staugur/staugur/740838](https://www.kancloud.cn/staugur/staugur/740838)
 
 ## Nginx参考：
