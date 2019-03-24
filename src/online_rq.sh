@@ -37,8 +37,9 @@ autostart)
     #可用于监控进程，异常时自动启动服务
     if [ -f $pidfile1 ]; then
         PID1=$(cat $pidfile1)
-        if [ ! -x /proc/${PID1} ]
-        then
+        PIDNUM=$(ps aux|grep -v grep|grep ${PID1}|wc -l)
+        if [ "${PIDNUM}" = "0" ]; then
+            bash $0 stop
             bash $0 start
         fi
     else
