@@ -88,7 +88,7 @@ def download():
             # 存入缓存数据
             pipe = rc.pipeline()
             pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=data["CALLBACK_URL"], board_pins=data["board_pins"], MAX_BOARD_NUMBER=data["MAX_BOARD_NUMBER"], board_id=data["board_id"], site=data["site"], uifnKey=data["uifnKey"]))
-            pipe.expireat(uifn, timestamp_after_timestamp(etime, hours=1))
+            pipe.expireat(uifn, timestamp_after_timestamp(etime, days=7))
             try:
                 pipe.execute()
             except:
