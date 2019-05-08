@@ -25,9 +25,9 @@
 
 ## 更多文档：
 
-[点击查看文档](http://docs.saintic.com/946799 "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
+[点击查看文档](http://docs.saintic.com/tdi/install.html "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
 
-若上述地址异常，备用地址是：[https://www.kancloud.cn/staugur/staugur/740838](https://www.kancloud.cn/staugur/staugur/740838)
+若上述地址异常，备用地址是：[https://saintic-docs.readthedocs.io/tdi/install.html](https://saintic-docs.readthedocs.io/tdi/install.html)
 
 ## Nginx参考：
 ```
