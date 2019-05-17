@@ -20,7 +20,7 @@ from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, dis
 logger = Logger("sys").getLogger
 
 
-def DownloadBoard(downloadDir, uifn):
+def DownloadBoard(downloadDir, uifn, diskLimit=80):
     """
     @param downloadDir str: 画板上层目录，CrawlHuaban插件所在目录，图片直接保存到此目录的`board_id`下
     @param uifnKey: str: 标识索引
@@ -56,7 +56,7 @@ def DownloadBoard(downloadDir, uifn):
     os.chdir(downloadDir)
     # 创建临时画板目录并创建锁文件
     makedir(board_id)
-    if diskRate(downloadDir) > 80:
+    if diskRate(downloadDir) > diskLimit:
         ALLOWDOWN = False
         README.add("Disk usage is too high")
     # 初始化请求类
@@ -75,7 +75,7 @@ def DownloadBoard(downloadDir, uifn):
                 logger.debug(imgname)
                 try:
                     res = req.get(imgurl)
-                    if diskRate(downloadDir) > 80:
+                    if diskRate(downloadDir) > diskLimit:
                         README.add("Disk usage is too high")
                     else:
                         with open(imgname, 'wb') as fp:

@@ -34,7 +34,10 @@ def execute_cleanDownload(hours=12):
             else:
                 if aid == "hb":
                     ctime = mst / 1000
-                    if timestamp_after_timestamp(ctime, hours=hours) <= get_current_timestamp():
+                    # 压缩文件的创建时间戳
+                    file_ctime = int(os.path.getctime(filepath))
+                    if timestamp_after_timestamp(ctime, hours=hours) <= get_current_timestamp() and \
+                        timestamp_after_timestamp(file_ctime, hours=hours) <= get_current_timestamp():
                         # 已过期，清理文件
                         try:
                             os.remove(filepath)

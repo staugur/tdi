@@ -78,7 +78,7 @@ def download():
             etime = int(data["etime"])
             # 存入缓存数据
             pipe = rc.pipeline()
-            pipe.hmset(uifn, dict(etime=etime, CALLBACK_URL=data["CALLBACK_URL"], board_pins=data["board_pins"], MAX_BOARD_NUMBER=data["MAX_BOARD_NUMBER"], board_id=data["board_id"], site=data["site"], uifnKey=data["uifnKey"]))
+            pipe.hmset(uifn, dict( etime=etime, CALLBACK_URL=data["CALLBACK_URL"], board_pins=data["board_pins"], MAX_BOARD_NUMBER=data["MAX_BOARD_NUMBER"], board_id=data["board_id"], site=data["site"], uifnKey=data["uifnKey"] ))
             pipe.expireat(uifn, timestamp_after_timestamp(etime, days=7))
             try:
                 pipe.execute()
@@ -86,7 +86,7 @@ def download():
                 res.update(msg="redis is error")
             else:
                 res.update(code=0)
-                asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifn"]), timeout=int(data.get("TIMEOUT") or 7200))
+                asyncQueue.enqueue_call(func=DownloadBoard, args=(DOWNLOADPATH, data["uifn"], float(data.get("DISKLIMIT", 0)) or 80), timeout=int(data.get("TIMEOUT") or 7200))
         else:
             res.update(msg="Invalid param")
         return jsonify(res)
