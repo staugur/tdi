@@ -17,7 +17,7 @@ from functools import wraps
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
 from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp
-from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH
+from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH, ALARMEMAIL
 from version import __version__
 
 __author__ = 'staugur'
@@ -61,20 +61,11 @@ if NORQDASH != "yes":
     import rq_dashboard
     app.register_blueprint(rq_dashboard.blueprint, url_prefix="/rqdashboard")
 
-
-@app.after_request
-def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE,OPTIONS'
-    return response
-
-
 @app.route("/ping")
 @signature_required
 def ping():
-    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp(), rqcount=asyncQueue.count)
+    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp(), rqcount=asyncQueue.count, rqfailed=rc.llen('rq:queue:failed'), email=ALARMEMAIL or "")
     return jsonify(res)
-
 
 @app.route("/download", methods=["POST"])
 @signature_required
@@ -99,7 +90,6 @@ def download():
         else:
             res.update(msg="Invalid param")
         return jsonify(res)
-
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT, debug=True)

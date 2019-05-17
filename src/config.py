@@ -30,3 +30,5 @@ TOKEN = getenv("crawlhuabantdi_token", "")
 STATUS = getenv("crawlhuabantdi_status", "ready")
 # Disable rq_dashboard
 NORQDASH = getenv("crawlhuabantdi_norqdash", "no")
+# Alarm mail box
+ALARMEMAIL = getenv("crawlhuabantdi_alarmemail")

@@ -45,12 +45,11 @@ def DownloadBoard(downloadDir, uifn):
     # 说明文件
     README = set()
     ALLOWDOWN = True
-
-    def writeREADME():
+    def writeREADME(_README):
         """更新README提示信息"""
-        if README:
+        if _README:
             with open(os.path.join(downloadDir, board_id, 'README.txt'), "a+") as fp:
-                fp.write("\r\n".join(list(README)))
+                fp.write("\r\n".join(list(_README)))
     # 创建下载目录并切换
     makedir(downloadDir)
     # 切换到下载目录
@@ -93,7 +92,7 @@ def DownloadBoard(downloadDir, uifn):
         pool.close()
         pool.join()
         logger.info("DownloadBoard over, data len: %s, start make_archive" % len(data))
-    writeREADME()
+    writeREADME(README)
     # 压缩目录
     zipfilepath = make_zipfile(uifn, board_id, [".zip", ".lock"])
     logger.info("DownloadBoard make_archive over, path is %s" % zipfilepath)
