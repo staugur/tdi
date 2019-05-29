@@ -3,6 +3,7 @@
 
 此程序相当于`CrawlHuaban`(中心端)的成员，用户选择远端下载后会由中心端选择一个成员提供给用户，减少中心端压力。
 
+
 ## 流程：
 
 1. 成员端启动程序，到中心端页面`https://open.saintic.com/CrawlHuaban/Register`注册成员端URL。
@@ -11,6 +12,7 @@
 4. 用户请求时，若有密钥则计算是否有可用专属Tdi，若无，则中心端根据成员端状态和资源计算是否可用，然后从可用列表中随机分配。
 5. 程序收到下载请求后，放入异步任务队列，下载完成后回调给中心端，实现提醒、记录等。
 6. 成员端需定时执行`cleanDownload.py`脚本，清理已过期的压缩文件。
+
 
 ## 部署：
 
@@ -22,6 +24,14 @@
 
 > 部署图
 > ![](misc/deploy.gif)
+
+
+## 更多文档：
+
+[点击查看文档](https://docs.saintic.com/tdi/install.html "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
+
+若上述地址异常，备用地址是：[https://saintic-docs.readthedocs.io/tdi/install.html](https://saintic-docs.readthedocs.io/tdi/install.html)
+
 
 ## Nginx参考：
 ```
@@ -50,9 +60,3 @@ server {
     }
 }
 ```
-
-## 更多文档：
-
-[点击查看文档](https://docs.saintic.com/tdi/install.html "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
-
-若上述地址异常，备用地址是：[https://saintic-docs.readthedocs.io/tdi/install.html](https://saintic-docs.readthedocs.io/tdi/install.html)

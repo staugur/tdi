@@ -14,6 +14,7 @@ import time
 import shutil
 import requests
 import json
+from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
 from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp, getDirSize
 
@@ -87,7 +88,8 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
     # 并发下载图片
     stime = time.time()
     if ALLOWDOWN is True:
-        pool = ThreadPool()
+        process = (len(board_pins) / 100) if len(board_pins) > 100 else cpu_count()
+        pool = ThreadPool(process)
         data = pool.map(_download_img, board_pins)
         pool.close()
         pool.join()
