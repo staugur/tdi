@@ -15,7 +15,7 @@ import shutil
 import requests
 import json
 from multiprocessing.dummy import Pool as ThreadPool
-from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp
+from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp, getDirSize
 
 logger = Logger("sys").getLogger
 
@@ -68,7 +68,7 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
         @param pin dict: pin的数据，要求： {'imgUrl': xx, 'imgName': xx}
         @param retry bool: 是否失败重试
         """
-        if pin and isinstance(pin, dict) and "imgUrl" in pin and "imgName" in pin:
+        if pin and isinstance(pin, dict) and "imgUrl" in pin and "imgName" in pin and ALLOWDOWN is True:
             imgurl = pin['imgUrl']
             imgname = os.path.join(downloadDir, board_id, pin['imgName'].encode())
             if not os.path.isfile(imgname):
@@ -92,9 +92,14 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
         pool.close()
         pool.join()
         logger.info("DownloadBoard over, data len: %s, start make_archive" % len(data))
+    # 将提示信息写入提示文件中
     writeREADME(README)
-    # 压缩目录
-    zipfilepath = make_zipfile(uifn, board_id, [".zip", ".lock"])
+    # 定义压缩排除
+    exclude = [".zip", ".lock"]
+    # 判断是否有足够的空间可以执行压缩命令，由于压缩时采用了写入立即删除源文件的策略，此处判断可暂时忽略
+    # diskRate(d, "all")["available"] > getDirSize(uifn, exclude)
+    # 开始压缩目录
+    zipfilepath = make_zipfile(uifn, board_id, exclude)
     logger.info("DownloadBoard make_archive over, path is %s" % zipfilepath)
     # 检测压缩文件大小
     size = formatSize(os.path.getsize(uifn))

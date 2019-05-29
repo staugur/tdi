@@ -62,19 +62,26 @@ def memRate():
 
 
 def loadStat():
-    loadavg = {}
-    with open("/proc/loadavg") as f:
-        con = f.read().split()
-    loadavg['lavg_1'] = con[0]
-    loadavg['lavg_5'] = con[1]
-    loadavg['lavg_15'] = con[2]
-    return loadavg['lavg_5']
+    """Return load value in 5 minutes(float)"""
+    return os.getloadavg()[1]
 
 
-def diskRate(path=None):
-    disk = os.statvfs(path or os.getcwd())
-    percent = round((disk.f_blocks - disk.f_bfree) * 100 / (disk.f_blocks - disk.f_bfree + disk.f_bavail) + 1, 2)
-    return percent
+def diskRate(path=None, ret="percent"):
+    """Return disk usage statistics about the given path.
+
+    Will return the namedtuple with attributes: 'total', 'used' and 'free',
+    which are the amount of total, used and free space, in bytes.
+    """
+    vfs = os.statvfs(path or os.getcwd())
+    #Total,总容量
+    total = vfs.f_bsize*vfs.f_blocks
+    #Used,使用量，总容量减去空闲容量
+    used = vfs.f_bsize * (vfs.f_blocks - vfs.f_bfree)
+    #Available,有效容量
+    available = vfs.f_bsize * vfs.f_bavail
+    #使用量百分比
+    percent = round( float(used) / float(used+available) * 100 + 1, 2)
+    return percent if ret == "percent" else dict(total=total, available=available, used=used, percent=percent)
 
 
 def makedir(d):
@@ -103,9 +110,18 @@ def make_zipfile(zip_filename, zip_path, exclude=[]):
                     continue
                 if not os.path.splitext(filename)[-1] in exclude:
                     zf.write(os.path.join(zip_path, filename), filename.decode())
+                    # 写入压缩文件后直接删除源文件，经测试对压缩文件无影响
+                    os.remove(os.path.join(zip_path, filename))
         return zip_filename if os.path.isabs(zip_filename) else os.path.join(os.getcwd(), zip_filename)
     else:
         raise TypeError
+
+
+def getDirSize(dir_path, exclude=[]):
+    size = 0L
+    for root, dirs, files in os.walk(dir_path):
+        size += sum([os.path.getsize(os.path.join(root, name)) for name in files if os.path.splitext(name)[-1] not in exclude ])
+    return size
 
 
 def formatSize(bytes):
