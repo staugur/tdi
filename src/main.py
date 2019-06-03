@@ -16,7 +16,7 @@ from rq import Queue
 from functools import wraps
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
-from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp
+from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp, Logger
 from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH, ALARMEMAIL
 from version import __version__
 
@@ -73,7 +73,7 @@ def download():
     if request.method == "POST":
         res = dict(code=1, msg=None)
         data = request.json
-        if data and isinstance(data, dcit) and "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
+        if data and isinstance(data, dict) and "uifnKey" in data and "site" in data and "board_id" in data and "uifn" in data and "board_pins" in data and "etime" in data and "MAX_BOARD_NUMBER" in data and "CALLBACK_URL" in data:
             uifn = data["uifn"]
             etime = int(data["etime"])
             # 存入缓存数据
@@ -90,6 +90,17 @@ def download():
         else:
             res.update(msg="Invalid param")
         return jsonify(res)
+
+@app.errorhandler(500)
+def server_error(error=None):
+    if error:
+        err_logger = Logger("err").getLogger
+        err_logger.error(error, exc_info=True)
+    message = {
+        "msg": "Server Error",
+        "code": 500
+    }
+    return jsonify(message), 500
 
 if __name__ == '__main__':
     app.run(host=HOST, port=PORT, debug=True)
