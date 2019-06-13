@@ -94,6 +94,8 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
         pool.close()
         pool.join()
         logger.info("DownloadBoard over, data len: %s, start make_archive" % len(data))
+    # 计算总共下载用时，不包含压缩文件的过程
+    dtime = "%.2f" % (time.time() - stime)
     # 将提示信息写入提示文件中
     writeREADME(README)
     # 定义压缩排除
@@ -107,9 +109,6 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
     size = formatSize(os.path.getsize(uifn))
     # 删除临时画板目录
     shutil.rmtree(board_id)
-    logger.info("DownloadBoard move over, delete lock and %s" % board_id)
-    # 计算总共下载用时
-    dtime = "%.2f" % (time.time() - stime)
     # 回调
     try:
         resp = try_request(CALLBACK_URL, timeout=5, params=dict(Action="FIRST_STATUS"), data=dict(uifn=uifn, uifnKey=uifnKey, size=size, dtime=dtime))

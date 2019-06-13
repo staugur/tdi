@@ -14,6 +14,7 @@ import json
 import hashlib
 from rq import Queue
 from functools import wraps
+from platform import python_version
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
 from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp, Logger
@@ -64,7 +65,7 @@ if NORQDASH != "yes":
 @app.route("/ping")
 @signature_required
 def ping():
-    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp(), rqcount=asyncQueue.count, rqfailed=rc.llen('rq:queue:failed'), email=ALARMEMAIL or "")
+    res = dict(code=0, version=__version__, status=STATUS, memRate=memRate(), loadFive=loadStat(), diskRate=diskRate(DOWNLOADPATH), timestamp=get_current_timestamp(), rqcount=asyncQueue.count, rqfailed=rc.llen('rq:queue:failed'), email=ALARMEMAIL or "", lang="Python" + python_version())
     return jsonify(res)
 
 @app.route("/download", methods=["POST"])

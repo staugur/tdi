@@ -33,8 +33,9 @@ def execute_cleanDownload(hours=12):
                 pass
             else:
                 if aid == "hb":
+                    # 中心端接收到请求时的时间戳
                     ctime = mst / 1000
-                    # 压缩文件的创建时间戳
+                    # 实际生成压缩文件时的时间戳
                     file_ctime = int(os.path.getctime(filepath))
                     if timestamp_after_timestamp(ctime, hours=hours) <= get_current_timestamp() and \
                         timestamp_after_timestamp(file_ctime, hours=hours) <= get_current_timestamp():
