@@ -11,7 +11,6 @@
 """
 
 import os
-import requests
 from tool import rc, get_current_timestamp, timestamp_after_timestamp, try_request, Logger
 
 logger = Logger("cli").getLogger

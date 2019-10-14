@@ -139,7 +139,7 @@ def formatSize(bytes):
         else:
             return "%.2fM" % (M)
     else:
-        return "%.2fkb" % (kb)
+        return "%.2fK" % (kb)
 
 
 def try_request(url, params=None, data=None, timeout=5, num_retries=1, method='post'):

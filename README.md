@@ -3,17 +3,9 @@
 
 此程序相当于`CrawlHuaban`(中心端)的成员，用户选择远端下载后会由中心端选择一个成员提供给用户，减少中心端压力。
 
-另外PHP版本的仓库地址是：https://github.com/staugur/tdi-php
+PHP版本的仓库地址是：https://github.com/staugur/tdi-php
 
-
-## 流程：
-
-1. 成员端启动程序，到中心端页面`https://open.saintic.com/CrawlHuaban/Register`注册成员端URL。
-2. 中心端校验成员端规则<ping>，没问题则接入系统中。
-3. 中心端定时检测成员端<ping>，查询其可用性、磁盘、负载、内存，并更新状态。
-4. 用户请求时，若有密钥则计算是否有可用专属Tdi，若无，则中心端根据成员端状态和资源计算是否可用，然后从可用列表中随机分配。
-5. 程序收到下载请求后，放入异步任务队列，下载完成后回调给中心端，实现提醒、记录等。
-6. 成员端需定时执行`cleanDownload.py`脚本，清理已过期的压缩文件。
+Node.js版本的仓库地址是：https://github.com/staugur/tdi-node
 
 
 ## 部署：
@@ -30,9 +22,9 @@
 
 ## 更多文档：
 
-[点击查看文档](https://docs.saintic.com/tdi/install.html "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
+[点击查看文档](https://docs.saintic.com/tdi/ "点击查看部署及使用文档")，关于普通部署、Docker部署、使用手册、注意事项等问题。
 
-若上述地址异常，备用地址是：[https://saintic-docs.readthedocs.io/tdi/install.html](https://saintic-docs.readthedocs.io/tdi/install.html)
+若上述地址异常，备用地址是：[https://saintic-docs.readthedocs.io/tdi/](https://saintic-docs.readthedocs.io/tdi/)
 
 
 ## Nginx参考：
@@ -41,11 +33,11 @@ server {
     listen 80;
     server_name 域名;
     charset utf-8;
-    #防止在IE9、Chrome和Safari中的MIME类型混淆攻击
-    add_header X-Content-Type-Options nosniff;
+    client_max_body_size 10M;
+    client_body_buffer_size 128k;
     location /downloads {
         #下载程序目录
-        alias /tdi/src/downloads/;
+        alias /path/to/tdi/src/downloads/;
         default_type application/octet-stream;
         proxy_max_temp_file_size 0;
         if ($request_filename ~* ^.*?\.(zip|tgz)$){
