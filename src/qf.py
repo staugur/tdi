@@ -50,7 +50,7 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
         """更新README提示信息"""
         if _README:
             with open(os.path.join(downloadDir, board_id, 'README.txt'), "a+") as fp:
-                fp.write("\r\n".join(list(_README)))
+                fp.write("Error board_id: {}\r\n".format(board_id) + "\r\n".join(list(_README)))
     # 创建下载目录并切换
     makedir(downloadDir)
     # 切换到下载目录
