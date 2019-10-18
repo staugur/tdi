@@ -10,14 +10,13 @@
 """
 
 import os
-import json
 import hashlib
 from rq import Queue
 from functools import wraps
 from platform import python_version
 from flask import Flask, request, jsonify
 from qf import DownloadBoard
-from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp, Logger
+from tool import memRate, loadStat, diskRate, makedir, get_current_timestamp, rc, timestamp_after_timestamp, Logger, string_types
 from config import HOST, PORT, REDIS, TOKEN, STATUS, NORQDASH, ALARMEMAIL
 from version import __version__
 
@@ -38,6 +37,17 @@ def checkSignature(signature, timestamp, nonce):
     mysig = hashlib.sha1(''.join(args).encode("utf8")).hexdigest()
     return mysig == signature
 
+def checkTimestamp(req_timestamp):
+    if isinstance(req_timestamp, string_types) and len(req_timestamp) == 10:
+        try:
+            rt = int(req_timestamp)
+        except ValueError:
+            return
+        else:
+            nt = get_current_timestamp()
+            if (rt <= nt or rt - 10 <= nt) and (rt + 300 >= nt):
+                return True
+    return False
 
 def signature_required(f):
     @wraps(f)
@@ -45,6 +55,8 @@ def signature_required(f):
         signature = request.args.get('signature', '')
         timestamp = request.args.get('timestamp', '')
         nonce = request.args.get('nonce', '')
+        if not checkTimestamp(timestamp):
+            return jsonify(dict(code=1, msg="Invalid timestamp"))
         if not checkSignature(signature, timestamp, nonce):
             return jsonify(dict(code=1, msg="Invalid signature"))
         return f(*args, **kwargs)

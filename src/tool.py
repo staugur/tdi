@@ -108,11 +108,38 @@ def make_zipfile(zip_filename, zip_path, exclude=[]):
             for filename in os.listdir(zip_path):
                 if os.path.isdir(filename):
                     continue
-                if not os.path.splitext(filename)[-1] in exclude:
+                if os.path.splitext(filename)[-1] not in exclude:
                     zf.write(os.path.join(zip_path, filename), filename.decode())
                     # 写入压缩文件后直接删除源文件，经测试对压缩文件无影响
                     os.remove(os.path.join(zip_path, filename))
         return zip_filename if os.path.isabs(zip_filename) else os.path.join(os.getcwd(), zip_filename)
+    else:
+        raise TypeError
+
+
+def make_tarfile(tar_filename, tar_path, exclude=[]):
+    """
+    :param tar_filename: str: packaged file name
+    :param tar_path: str: The packaged directory (the files in this directory will be packaged)
+    "param exclude: list,tuple: File suffixes will not be packaged in this list when packaged
+    """
+    if tar_filename and tar_path and \
+            os.path.splitext(tar_filename)[-1] == ".tar" and \
+            os.path.isdir(tar_path) and \
+            isinstance(exclude, (list, tuple)):
+        try:
+            import tarfile
+        except ImportError:
+            raise
+        with tarfile.open(tar_filename, "w") as tar:
+            for fn in os.listdir(tar_path):
+                fullpath = os.path.join(tar_path, fn)
+                if os.path.isdir(fullpath):
+                    continue
+                if os.path.splitext(fn)[-1] not in exclude:
+                    tar.add(fullpath, fn)
+                    os.remove(fullpath)
+        return tar_filename if os.path.isabs(tar_filename) else os.path.join(os.getcwd(), tar_filename)
     else:
         raise TypeError
 

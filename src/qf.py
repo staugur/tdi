@@ -16,7 +16,7 @@ import requests
 import json
 from multiprocessing import cpu_count
 from multiprocessing.dummy import Pool as ThreadPool
-from tool import make_zipfile, formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp, getDirSize
+from tool import formatSize, makedir, Logger, try_request, rc, diskRate, timestamp_after_timestamp, getDirSize, make_tarfile
 
 logger = Logger("sys").getLogger
 
@@ -99,11 +99,11 @@ def DownloadBoard(downloadDir, uifn, diskLimit=80):
     # 将提示信息写入提示文件中
     writeREADME(README)
     # 定义压缩排除
-    exclude = [".zip", ".lock"]
+    exclude = [".zip", ".lock", ".tar"]
     # 判断是否有足够的空间可以执行压缩命令，由于压缩时采用了写入立即删除源文件的策略，此处判断可暂时忽略
     # diskRate(d, "all")["available"] > getDirSize(uifn, exclude)
     # 开始压缩目录
-    zipfilepath = make_zipfile(uifn, board_id, exclude)
+    zipfilepath = make_tarfile(uifn, board_id, exclude)
     logger.info("DownloadBoard make_archive over, path is %s" % zipfilepath)
     # 检测压缩文件大小
     size = formatSize(os.path.getsize(uifn))

@@ -20,7 +20,7 @@ def execute_cleanDownload(hours=12):
     downloadDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "downloads")
     for uifn in os.listdir(downloadDir):
         filepath = os.path.join(downloadDir, uifn)
-        if os.path.isfile(filepath) and os.path.splitext(uifn)[-1] == ".zip":
+        if os.path.isfile(filepath) and os.path.splitext(uifn)[-1] in (".zip", ".tar"):
             try:
                 if uifn.count("_") == 2:
                     aid, mst, _ = os.path.splitext(uifn)[0].split("_")
